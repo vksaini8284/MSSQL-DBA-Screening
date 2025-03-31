@@ -1,0 +1,61 @@
+----Find the top 5 most expensive products in stock.
+
+SELECT TOP 5 ProductID, ProductName, Category, Price, InStock
+FROM Products
+WHERE InStock > 0
+ORDER BY Price DESC;
+
+----Get the total number of products added in the last 30 days
+
+SELECT COUNT(*) AS TotalProductsAdded
+FROM Products
+WHERE CreatedAt >= DATEADD(DAY, -30, GETDATE());
+
+----Show average price per category, sorted by highest to lowest
+
+SELECT Category, AVG(Price) AS AveragePrice
+FROM Products
+GROUP BY Category
+ORDER BY AveragePrice DESC;
+
+----- o	Suggest indexes you’d add to improve performance
+CREATE INDEX Index_category ON Products(Category);
+CREATE INDEX idx_price ON Products(Price);
+CREATE INDEX idx_instock ON Products(InStock);
+
+This script creates indexes on the Category, Price, and InStock columns to improve query performance.
+
+CREATE INDEX idx_category_price_instock ON Products(Category, Price, InStock);
+
+This composite index will help improve the performance of queries that involve these columns together. 
+However, it's important to consider the order of columns in the index based on your query patterns.
+
+---- o	Write a query to check execution plan for the first query using SET SHOWPLAN_ALL
+
+SET SHOWPLAN_ALL ON;
+
+-- Your query to check the execution plan
+SELECT TOP 5 ProductID, ProductName, Category, Price, InStock
+FROM Products
+WHERE InStock > 0
+ORDER BY Price DESC;
+
+SET SHOWPLAN_ALL OFF;
+
+Also We can include Actual execution plan in SSMS tool to se the plan. 
+
+----
+
+bcp "SELECT TOP 5 ProductID, ProductName, Category, Price, InStock FROM OurDatabase.dbo.Products 
+WHERE InStock > 0 ORDER BY Price DESC" queryout "C:\Path\To\our\OutputFile.csv" -c -t, -T -S ourServerName
+
+:-Replace the placeholders with our actual database name, server name, and desired file path.
+
+ourDatabase: The name of your database.
+ourServerName: The name of your SQL Server instance.
+C:\Path\To\our\OutputFile.csv: The path where you want to save the .csv file.
+
+
+
+
+Or we can simplay Export the data in Csv through GUI mode using SSMS tool, right click on output window and the select save result as Csv.
